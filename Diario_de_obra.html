@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diário de Obra</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+	<style>
+	    /* Adiciona espaçamento entre os botões */
+        .button-container > .button {
+            margin-bottom: 10px;
+        }
+	</style>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Diário de Obra</h1>
+
+            <form id="diarioForm">
+                <div class="field">
+                    <label class="label" for="servico">Serviço:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="servico" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="solicitante">Solicitante:</label>
+                    <div class="control">
+                        <input class="input" type="text" id="solicitante" required>
+                    </div>
+                </div>
+				<hr>
+
+                <div id="registros">
+                    <div class="registro">
+                        <div class="field">
+                            <label class="label" for="data">Data:</label>
+                            <div class="control">
+                                <input class="input" type="date" required>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label" for="horaEntrada">Hora de Entrada:</label>
+                            <div class="control">
+                                <input class="input" type="time" required>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label" for="horaSaida">Hora de Saída:</label>
+                            <div class="control">
+                                <input class="input" type="time" required>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="label" for="profissionais">Profissionais:</label>
+                            <div class="control">
+                                <input class="input" type="text" required>
+                            </div>
+                        </div>
+						<hr>
+                    </div>
+                </div>
+
+                <div class="button-container">
+					<button type="button" class="button is-primary is-fullwidth" id="addRegistro">Adicionar Data</button>
+					<button type="button" class="button is-info is-fullwidth" id="copiar">Copiar para Área de Transferência</button>
+					<p style="text-align:center">Ou:</p>
+					<button type="button" class="button is-success is-fullwidth" id="enviarWhatsApp">Enviar por WhatsApp</button>
+				</div>
+            </form>
+        </div>
+    </section>
+
+    <script>
+	        function gerarMensagem() {
+            const diarioForm = document.getElementById("diarioForm");
+            let texto = "";
+
+            // Coleta apenas os campos fixos do formulário
+            const servico = document.getElementById("servico").value;
+            const solicitante = document.getElementById("solicitante").value;
+            const registros = document.querySelectorAll(".registro");
+            registros.forEach(function (registro) {
+                const data = registro.querySelector("[type='date']").value;
+                const horaEntrada = registro.querySelector("[type='time']").value;
+                const horaSaida = registro.querySelectorAll("[type='time']")[1].value;
+                const profissionais = registro.querySelector("[type='text']").value;
+
+                texto += `Data: ${data}\n`;
+                texto += `Hora de Entrada: ${horaEntrada}\n`;
+                texto += `Hora de Saída: ${horaSaida}\n`;
+                texto += `Profissionais: ${profissionais}\n`;
+            });
+	
+            texto = `Serviço: ${servico}\n` + `Solicitante: ${solicitante}\n` + texto;
+
+            return texto;
+        }
+
+        document.getElementById("addRegistro").addEventListener("click", function () {
+            const registrosDiv = document.getElementById("registros");
+            const novoRegistro = document.createElement("div");
+            novoRegistro.classList.add("registro");
+            novoRegistro.innerHTML = `
+                <div class="field">
+                    <label class="label" for="data">Data:</label>
+                    <div class="control">
+                        <input class="input" type="date" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="horaEntrada">Hora de Entrada:</label>
+                    <div class="control">
+                        <input class="input" type="time" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="horaSaida">Hora de Saída:</label>
+                    <div class="control">
+                        <input class="input" type="time" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label" for="profissionais">Profissionais:</label>
+                    <div class="control">
+                        <input class="input" type="text" required>
+                    </div>
+                </div>
+				<hr>
+            `;
+            registrosDiv.appendChild(novoRegistro);
+        });
+
+        document.getElementById("copiar").addEventListener("click", function () {
+			const texto=gerarMensagem();
+
+            navigator.clipboard.writeText(texto).then(function () {
+                alert("Dados copiados para a área de transferência!");
+            }, function (err) {
+                console.error("Falha ao copiar: ", err);
+            });
+        });
+		
+		 document.getElementById("enviarWhatsApp").addEventListener("click", function () {
+          const texto = gerarMensagem();
+           // Substitua "seu_numero" pelo número de telefone para o qual você quer enviar a mensagem
+            const numeroWhatsApp = "seu_numero";
+            // Substitua "seu_texto" pelo texto da mensagem que você quer enviar
+            const textoWhatsApp = encodeURIComponent(texto);
+
+            // Verifica se o dispositivo é um mobile
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) {
+                window.open(`whatsapp://send?text=${textoWhatsApp}`);
+            } else {
+                window.open(`https://web.whatsapp.com/send?text=${textoWhatsApp}`);
+            }
+        });
+    </script>
+</body>
+</html>
+
